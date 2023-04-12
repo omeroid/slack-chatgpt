@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  chat gpt 
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 300
+    Tracing: Active
+  Api:
+    TracingEnabled: True
+Parameters:
+  SlackToken:
+    Type: String
+  OpenAIAPI:
+    Type: String
+
+Resources:
+  ChatGPTEntryFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: "ChatGPTEntryFunction"
+      Role: !GetAtt ChatGPTEntryFunctionRole.Arn
+      CodeUri: ./entry
+      Handler: chat-gpt-entry
+      Runtime: go1.x
+      Timeout: 300
+      Architectures:
+        - x86_64
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          SLACK_TOKEN:
+            Ref: SlackToken
+      FunctionUrlConfig:
+        AuthType: NONE
+  ChatGPTEntryFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "chatgpt-function-execution-role"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: "chatgpt-function-execution-role-policy"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+  ChatGPTFunction:
+    Type: AWS::Lambda::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: "ChatGPTFunction"
+      Code: ./implementation
+      Role: !GetAtt ChatGPTEntryFunctionRole.Arn
+      Handler: chat-gpt
+      Runtime: go1.x
+      Timeout: 300
+      Architectures:
+        - x86_64
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          SLACK_TOKEN:
+            Ref: SlackToken
+          OPENAI_API:
+            Ref: OpenAIAPI
+
+Outputs:
+  ChatGPTEntryFunction:
+    Description: "First Lambda Function ARN"
+    Value: !GetAtt ChatGPTEntryFunction.Arn
+  ChatGPTEntryFunctionIamRole:
+    Description: "Implicit IAM Role created for function"
+    Value: !GetAtt ChatGPTEntryFunctionRole.Arn
+  ChatGPTEntryFunctionUrl:
+    Description: "Function URLs endpoint"
+    Value: !GetAtt ChatGPTEntryFunctionUrl.FunctionUrl
+  ChatGPTFunction:
+    Description: "First Lambda Function ARN"
+    Value: !GetAtt ChatGPTFunction.Arn
