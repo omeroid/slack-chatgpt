@@ -1,6 +1,6 @@
 module github.com/omeroid/chat-gpt
 
-go 1.20
+go 1.25
 
 require (
 	github.com/aws/aws-lambda-go v1.36.0
@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/lambda v1.30.2
 	github.com/kr/pretty v0.3.1
 	github.com/otiai10/openaigo v1.1.0
-	github.com/slack-go/slack v0.11.4
+	github.com/slack-go/slack v0.23.1
 )
 
 require (
@@ -23,9 +23,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.18.7 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 )
